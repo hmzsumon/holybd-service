@@ -2,20 +2,18 @@ import ImageIcon from '@mui/icons-material/Image';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { clearErrors } from '../../actions/productAction';
-import { newService } from '../../actions/serviceAction';
-import { SERVICE_CREATE_RESET } from '../../constants/serviceConstants';
-import BackdropLoader from '../Layouts/BackdropLoader';
-import MetaData from '../Layouts/MetaData';
+import { useAddServiceMutation } from '../../../features/service/serviceApi';
+import Layout from '../../Global/Layout';
+import BackdropLoader from '../../Layouts/BackdropLoader';
+import MetaData from '../../Layouts/MetaData';
 
 const NewService = () => {
-  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
-  const { loading, success, error } = useSelector((state) => state.newService);
+  const [addService, { isError, isLoading, isSuccess, error }] =
+    useAddServiceMutation();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -49,26 +47,25 @@ const NewService = () => {
     formData.set('unitPrice', unitPrice);
     formData.set('icon', icon);
 
-    dispatch(newService(formData));
+    addService(formData);
   };
 
   useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, { variant: 'error' });
-      dispatch(clearErrors());
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
     }
-    if (success) {
-      enqueueSnackbar('Product Created', { variant: 'success' });
-      dispatch({ type: SERVICE_CREATE_RESET });
+
+    if (isSuccess) {
+      enqueueSnackbar('Service added successfully', { variant: 'success' });
       navigate('/admin/services');
     }
-  }, [dispatch, error, success, navigate, enqueueSnackbar]);
+  }, [enqueueSnackbar, error, isError, isSuccess, navigate]);
 
   return (
-    <>
+    <Layout>
       <MetaData title='Admin: New Product | Holy Treders' />
 
-      {loading && <BackdropLoader />}
+      {isLoading && <BackdropLoader />}
       <form
         onSubmit={newProductSubmitHandler}
         encType='multipart/form-data'
@@ -153,13 +150,13 @@ const NewService = () => {
             <input
               form='mainform'
               type='submit'
-              className='bg-primary-orange uppercase w-1/3 p-3 text-white font-medium rounded shadow hover:shadow-lg cursor-pointer'
+              className='bg-orange-500 uppercase w-1/3 p-3 text-white font-medium rounded shadow hover:shadow-lg cursor-pointer'
               value='Submit'
             />
           </div>
         </div>
       </form>
-    </>
+    </Layout>
   );
 };
 

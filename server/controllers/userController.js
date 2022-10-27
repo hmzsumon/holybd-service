@@ -11,11 +11,11 @@ const jwt = require('jsonwebtoken');
 
 // Register User
 exports.registerUser = asyncErrorHandler(async (req, res, next) => {
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-    folder: 'avatars',
-    width: 150,
-    crop: 'scale',
-  });
+  // const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+  //   folder: 'avatars',
+  //   width: 150,
+  //   crop: 'scale',
+  // });
 
   // create 6 digit customer id
   const customer_id = crypto.randomBytes(3).toString('hex');
@@ -82,8 +82,8 @@ exports.registerUser = asyncErrorHandler(async (req, res, next) => {
       country,
       zip,
       gender,
-      myCloud.secure_url,
-      myCloud.public_id,
+      'https://i.ibb.co/51LzBQT/bit.png',
+      'myCloud.public_id',
       customer_id,
     ]
   );
@@ -98,26 +98,26 @@ exports.registerUser = asyncErrorHandler(async (req, res, next) => {
 
 // Login User
 exports.loginUser = asyncErrorHandler(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   // check if email and password is entered by user
-  if (!email || !password) {
-    return next(new ErrorHandler('Please enter email and password', 400));
+  if (!username || !password) {
+    return next(new ErrorHandler('Please enter username and password', 400));
   }
 
   // find user in database
-  const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [
-    email,
+  const { rows } = await db.query('SELECT * FROM users WHERE username = $1', [
+    username,
   ]);
 
   if (rows.length === 0) {
-    return next(new ErrorHandler('Invalid email or password', 401));
+    return next(new ErrorHandler('Invalid username or password', 401));
   }
 
   const isPasswordMatched = await bcrypt.compare(password, rows[0].password);
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler('Invalid email or password', 401));
+    return next(new ErrorHandler('Invalid username or password', 401));
   }
 
   // create token

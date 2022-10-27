@@ -1,19 +1,19 @@
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useSnackbar } from 'notistack';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { addServiceToCart } from '../../../actions/serviceCartAction';
+import { useAddToCartMutation } from '../../../features/cart/cartApi';
 
 const Service = ({ service }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [addToCart] = useAddToCartMutation();
   const { enqueueSnackbar } = useSnackbar();
   const { name, icon_url, description, unit, unitprice } = service;
-  const { cartItems } = useSelector((state) => state.serviceCart);
+  const { cartItems } = useSelector((state) => state.cart);
 
   const addToCartHandler = () => {
-    dispatch(addServiceToCart(service.id));
+    addToCart(service.id);
     enqueueSnackbar('Service Added To Cart', { variant: 'success' });
   };
   const itemInCart = cartItems.some((item) => item.service === service.id);
@@ -42,7 +42,7 @@ const Service = ({ service }) => {
       </div>
       <button
         onClick={itemInCart ? goToCart : addToCartHandler}
-        className='p-4 w-full flex items-center justify-center gap-2 text-white bg-primary-yellow rounded-sm shadow hover:shadow-lg'
+        className='p-4 w-full flex items-center justify-center gap-2 text-white bg-yellow-500 rounded-sm shadow hover:shadow-lg'
       >
         <ShoppingCartIcon />
         {itemInCart ? 'GO TO CART' : 'ADD TO CART'}

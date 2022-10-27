@@ -21,10 +21,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 const user = require('./routes/userRoute');
+const seller = require('./routes/sellerRoute');
 const order = require('./routes/orderRoute');
 const service = require('./routes/serviceRoute');
 
 app.use('/api/v1', user);
+app.use('/api/v1', seller);
 app.use('/api/v1', order);
 app.use('/api/v1', service);
 

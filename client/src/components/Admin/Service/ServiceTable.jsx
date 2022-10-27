@@ -1,48 +1,40 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-
 import {
-  clearErrors,
-  deleteService,
-  getAllServices,
-} from '../../actions/serviceAction';
-import { DELETE_SERVICE_RESET } from '../../constants/serviceConstants';
-import BackdropLoader from '../Layouts/BackdropLoader';
-import MetaData from '../Layouts/MetaData';
+  useDeleteServiceMutation,
+  useGetServicesQuery,
+} from '../../../features/service/serviceApi';
+import Layout from '../../Global/Layout';
+
+import BackdropLoader from '../../Layouts/BackdropLoader';
+import MetaData from '../../Layouts/MetaData';
 import Actions from './Actions';
 
 const ServiceTable = () => {
-  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { services, error } = useSelector((state) => state.allServices);
-  const {
-    loading,
-    isDeleted,
-    error: deleteError,
-  } = useSelector((state) => state.service);
+  const { data, isLoading } = useGetServicesQuery();
+  const services = data?.services;
+
+  const [
+    deleteService,
+    { isError, isSuccess, isLoading: deleteLoading, error },
+  ] = useDeleteServiceMutation();
 
   useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, { variant: 'error' });
-      dispatch(clearErrors());
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
     }
-    if (deleteError) {
-      enqueueSnackbar(deleteError, { variant: 'error' });
-      dispatch(clearErrors());
+
+    if (isSuccess) {
+      enqueueSnackbar('Service deleted successfully', { variant: 'success' });
     }
-    if (isDeleted) {
-      enqueueSnackbar('Service Deleted Successfully', { variant: 'success' });
-      dispatch({ type: DELETE_SERVICE_RESET });
-    }
-    dispatch(getAllServices());
-  }, [dispatch, error, deleteError, isDeleted, enqueueSnackbar]);
+  }, [enqueueSnackbar, isError, isSuccess, error]);
 
   const deleteProductHandler = (id) => {
-    dispatch(deleteService(id));
+    deleteService(id);
   };
 
   const columns = [
@@ -127,16 +119,16 @@ const ServiceTable = () => {
     });
 
   return (
-    <>
+    <Layout>
       <MetaData title='Admin Services | Holy' />
 
-      {loading && <BackdropLoader />}
+      {isLoading && <BackdropLoader />}
 
-      <div className='flex justify-between items-center'>
+      <div className='flex justify-between items-center mb-6'>
         <h1 className='text-lg font-medium uppercase'> services</h1>
         <Link
-          to='/admin/new_service'
-          className='py-2 px-4 rounded shadow font-medium text-white bg-primary-blue hover:shadow-lg'
+          to='/admin/new-service'
+          className='py-2 px-4 rounded shadow font-medium text-white bg-blue-600 hover:shadow-lg'
         >
           New Service
         </Link>
@@ -156,7 +148,7 @@ const ServiceTable = () => {
           }}
         />
       </div>
-    </>
+    </Layout>
   );
 };
 

@@ -1,7 +1,6 @@
-import { Form, FormikProvider, useFormik } from 'formik';
-import React, { useState } from 'react';
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
+import { useSnackbar } from 'notistack';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { Icon } from '@iconify/react';
 import { LoadingButton } from '@mui/lab';
@@ -16,6 +15,7 @@ import {
   TextField,
 } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useLoginMutation } from '../../../features/auth/authApi';
 
 let easing = [0.6, -0.05, 0.01, 0.99];
 const animate = {
@@ -28,141 +28,131 @@ const animate = {
   },
 };
 
-const LoginForm = ({ setAuth }) => {
+const LoginForm = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [login, { isError, isLoading, isSuccess, error }] = useLoginMutation();
+
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
 
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState('');
 
-  const LoginSchema = Yup.object().shape({
-    email: Yup.string()
-      .email('Provide a valid email address')
-      .required('Email is required'),
-    password: Yup.string().required('Password is required'),
-  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const myForm = new FormData(e.target);
+    myForm.set('username', username);
+    myForm.set('password', password);
+    // for (let pair of myForm.entries()) {
+    //   console.log(pair[0] + ', ' + pair[1]);
+    // }
+    login({ username, password });
+  };
 
-  const formik = useFormik({
-    initialValues: {
-      email: '',
-      password: '',
-      remember: true,
-    },
-    validationSchema: LoginSchema,
-    onSubmit: () => {
-      console.log('submitting...');
-      setTimeout(() => {
-        console.log('submited!!');
-        setAuth(true);
-        navigate(from, { replace: true });
-      }, 2000);
-    },
-  });
-
-  const { errors, touched, values, isSubmitting, handleSubmit, getFieldProps } =
-    formik;
+  useEffect(() => {
+    if (isSuccess) {
+      enqueueSnackbar('Login successful', {
+        variant: 'success',
+      });
+      navigate('/admin/dashboard', { replace: true });
+    }
+    if (isError) {
+      enqueueSnackbar(error.data.message, {
+        variant: 'error',
+      });
+    }
+  }, [isSuccess, isError, error, enqueueSnackbar, navigate]);
 
   return (
-    <FormikProvider value={formik}>
-      <Form autoComplete='off' noValidate onSubmit={handleSubmit}>
+    <form autoComplete='off' noValidate onSubmit={handleSubmit}>
+      <Box
+        component={motion.div}
+        animate={{
+          transition: {
+            staggerChildren: 0.55,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+          }}
+          component={motion.div}
+          initial={{ opacity: 0, y: 40 }}
+          animate={animate}
+        >
+          <TextField
+            fullWidth
+            autoComplete='username'
+            type='text'
+            label='Username'
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <TextField
+            fullWidth
+            autoComplete='current-password'
+            type={showPassword ? 'text' : 'password'}
+            label='Password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton onClick={() => setShowPassword((prev) => !prev)}>
+                    {showPassword ? (
+                      <Icon icon='eva:eye-fill' />
+                    ) : (
+                      <Icon icon='eva:eye-off-fill' />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
         <Box
           component={motion.div}
-          animate={{
-            transition: {
-              staggerChildren: 0.55,
-            },
-          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={animate}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
-            component={motion.div}
-            initial={{ opacity: 0, y: 40 }}
-            animate={animate}
+          <Stack
+            direction='row'
+            alignItems='center'
+            justifyContent='space-between'
+            sx={{ my: 2 }}
           >
-            <TextField
-              fullWidth
-              autoComplete='username'
-              type='email'
-              label='Email Address'
-              {...getFieldProps('email')}
-              error={Boolean(touched.email && errors.email)}
-              helperText={touched.email && errors.email}
+            <FormControlLabel
+              control={<Checkbox defaultChecked value='remember' />}
+              label='Remember me'
             />
 
-            <TextField
-              fullWidth
-              autoComplete='current-password'
-              type={showPassword ? 'text' : 'password'}
-              label='Password'
-              {...getFieldProps('password')}
-              error={Boolean(touched.password && errors.password)}
-              helperText={touched.password && errors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    >
-                      {showPassword ? (
-                        <Icon icon='eva:eye-fill' />
-                      ) : (
-                        <Icon icon='eva:eye-off-fill' />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
+            <Link
+              component={RouterLink}
+              variant='subtitle2'
+              to='#'
+              underline='hover'
+            >
+              Forgot password?
+            </Link>
+          </Stack>
 
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={animate}
+          <LoadingButton
+            fullWidth
+            size='large'
+            type='submit'
+            variant='contained'
+            loading={isLoading}
           >
-            <Stack
-              direction='row'
-              alignItems='center'
-              justifyContent='space-between'
-              sx={{ my: 2 }}
-            >
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    {...getFieldProps('remember')}
-                    checked={values.remember}
-                  />
-                }
-                label='Remember me'
-              />
-
-              <Link
-                component={RouterLink}
-                variant='subtitle2'
-                to='#'
-                underline='hover'
-              >
-                Forgot password?
-              </Link>
-            </Stack>
-
-            <LoadingButton
-              fullWidth
-              size='large'
-              type='submit'
-              variant='contained'
-              loading={isSubmitting}
-            >
-              {isSubmitting ? 'loading...' : 'Login'}
-            </LoadingButton>
-          </Box>
+            {isLoading ? 'loading...' : 'Login'}
+          </LoadingButton>
         </Box>
-      </Form>
-    </FormikProvider>
+      </Box>
+    </form>
   );
 };
 

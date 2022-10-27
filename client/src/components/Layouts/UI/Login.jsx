@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { Box, Container, Divider, Link, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import Layout from './Layout';
 
 import LoginForm from './LoginForm';
@@ -50,6 +51,18 @@ const fadeInUp = {
 };
 
 const Login = ({ setAuth }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const location = useLocation();
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+    if (isAuthenticated && user?.role === 'seller') {
+      navigate('/seller/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate, location, user?.role]);
   return (
     <Layout>
       <RootStyle>

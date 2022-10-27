@@ -4,8 +4,9 @@ CREATE TABLE users (
     customer_id VARCHAR(255) UNIQUE NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
+    business_name VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
     address VARCHAR(255),
     city VARCHAR(255),
@@ -19,6 +20,16 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- update user role to admin
+UPDATE users SET role = 'admin' WHERE user_id = 1;
+
+-- delete user
+DELETE FROM users WHERE user_id = 1;
+
+-- delete multiple users
+DELETE FROM users WHERE user_id IN (1, 2, 3);
+
 
 -- create table notices
 CREATE TABLE notices (
