@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import MetaData from '../Layouts/MetaData';
 import CartItem from './CartItem';
 import EmptyCart from './EmptyCart';
@@ -12,7 +12,8 @@ const Cart = () => {
   const { saveForLaterItems } = useSelector((state) => state.saveForLater);
 
   const placeOrderHandler = () => {
-    navigate('/login?redirect=shipping');
+    console.log('place order');
+    navigate('/shipping');
   };
 
   return (
@@ -36,17 +37,17 @@ const Cart = () => {
 
               {/* <!-- place order btn --> */}
               <div className='flex justify-end'>
-                <button
-                  onClick={placeOrderHandler}
+                <NavLink
+                  to='/shipping'
                   disabled={cartItems.length < 1 ? true : false}
                   className={`${
                     cartItems.length < 1
                       ? 'bg-primary-grey cursor-not-allowed'
-                      : 'bg-primary-orange'
-                  } w-full sm:w-1/3 mx-2 sm:mx-6 my-4 py-3 font-medium text-white shadow hover:shadow-lg rounded-sm`}
+                      : 'bg-orange-500'
+                  } w-full sm:w-1/3 mx-2 sm:mx-6 my-4 py-3 font-medium  shadow hover:shadow-lg rounded-sm`}
                 >
                   PLACE ORDER
-                </button>
+                </NavLink>
               </div>
               {/* <!-- place order btn --> */}
             </div>

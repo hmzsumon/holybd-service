@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../Global/Layout';
 import MetaData from '../Layouts/MetaData';
 import CartItem from './CartItem';
 import PriceSidebar from './PriceSidebar';
@@ -7,11 +8,11 @@ import Stepper from './Stepper';
 
 const OrderConfirm = () => {
   const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.serviceCart);
-  const { user } = useSelector((state) => state.user);
+  const { cartItems } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
 
   return (
-    <>
+    <Layout>
       <MetaData title='Holy Tradres: Order Confirmation' />
 
       <main className='w-full mt-20'>
@@ -34,7 +35,7 @@ const OrderConfirm = () => {
                   onClick={() => {
                     navigate('/process/payment');
                   }}
-                  className='bg-primary-orange px-6 py-2 text-white font-medium rounded-sm shadow hover:shadow-lg uppercase'
+                  className='bg-orange-500 px-6 py-2 text-white font-medium rounded-sm shadow hover:shadow-lg uppercase'
                 >
                   continue
                 </button>
@@ -45,7 +46,7 @@ const OrderConfirm = () => {
           <PriceSidebar cartItems={cartItems} />
         </div>
       </main>
-    </>
+    </Layout>
   );
 };
 

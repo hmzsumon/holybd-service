@@ -1,48 +1,39 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
-  clearErrors,
-  deleteOrder,
-  getAllOrders,
-} from '../../actions/orderAction';
-import { DELETE_ORDER_RESET } from '../../constants/orderConstants';
+  useDeleteOrderMutation,
+  useGetAdminOrdersQuery,
+} from '../../features/order/orderApi';
+
 import { formatDate } from '../../utils/functions';
+import Layout from '../Global/Layout';
 import BackdropLoader from '../Layouts/BackdropLoader';
 import MetaData from '../Layouts/MetaData';
 import Actions from './Actions';
 
 const OrderTable = () => {
+  const { data, isLoading } = useGetAdminOrdersQuery();
+
+  const { orders } = data || {};
+
+  const [deleteOrder, { isLoading: deleteLoading, isSuccess, isError, error }] =
+    useDeleteOrderMutation();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { orders, error } = useSelector((state) => state.allOrders);
-
-  const {
-    loading,
-    isDeleted,
-    error: deleteError,
-  } = useSelector((state) => state.order);
-
   useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, { variant: 'error' });
-      dispatch(clearErrors());
+    if (isSuccess) {
+      enqueueSnackbar('Order deleted successfully', { variant: 'success' });
     }
-    if (deleteError) {
-      enqueueSnackbar(deleteError, { variant: 'error' });
-      dispatch(clearErrors());
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
     }
-    if (isDeleted) {
-      enqueueSnackbar('Deleted Successfully', { variant: 'success' });
-      dispatch({ type: DELETE_ORDER_RESET });
-    }
-    dispatch(getAllOrders());
-  }, [dispatch, error, deleteError, isDeleted, enqueueSnackbar]);
+  }, [isSuccess, isError, error, enqueueSnackbar]);
 
   const deleteOrderHandler = (id) => {
-    dispatch(deleteOrder(id));
+    deleteOrder(id);
   };
 
   const columns = [
@@ -141,10 +132,10 @@ const OrderTable = () => {
     });
 
   return (
-    <>
+    <Layout>
       <MetaData title='Admin Orders | Holy Tradres' />
 
-      {loading && <BackdropLoader />}
+      {isLoading && <BackdropLoader />}
 
       <h1 className='text-lg font-medium uppercase'>orders</h1>
       <div
@@ -162,7 +153,7 @@ const OrderTable = () => {
           }}
         />
       </div>
-    </>
+    </Layout>
   );
 };
 

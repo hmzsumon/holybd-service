@@ -93,14 +93,18 @@ exports.updateSErvice = asyncErrorHandler(async (req, res, next) => {
 // Delete service
 exports.deleteService = asyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
-  console.log(id);
 
-  const { rows } = await db.query('DELETE FROM services WHERE id = $1', [id]);
+  const { rows } = await db.query('SELECT * FROM services WHERE id = $1', [id]);
+
+  console.log(rows[0]);
 
   // delete from cloudinary
   const service = rows[0];
+  console.log('P-Id', service.icon_public_id);
   const image_id = service.icon_public_id;
   await cloudinary.v2.uploader.destroy(image_id);
+
+  await db.query('DELETE FROM services WHERE id = $1', [id]);
 
   if (!service) {
     return next(new ErrorHandler('Service not found', 404));

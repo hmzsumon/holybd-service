@@ -2,13 +2,17 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { emptyCart } from '../../actions/cartAction';
-import { clearErrors, newOrder } from '../../actions/orderAction';
+
+import { useCreateOrderMutation } from '../../features/order/orderApi';
+
+import Layout from '../Global/Layout';
 import MetaData from '../Layouts/MetaData';
 import PriceSidebar from './PriceSidebar';
 import Stepper from './Stepper';
 
 const Payment = () => {
+  const [createOrder, { isError, isLoading, isSuccess, error }] =
+    useCreateOrderMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -17,9 +21,8 @@ const Payment = () => {
 
   // const [payDisable, setPayDisable] = useState(false);
 
-  const { shippingInfo, cartItems } = useSelector((state) => state.serviceCart);
+  const { shippingInfo, cartItems } = useSelector((state) => state.cart);
   // const { user } = useSelector((state) => state.user);
-  const { error } = useSelector((state) => state.newOrder);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -46,22 +49,24 @@ const Payment = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    dispatch(newOrder(order));
-    dispatch(emptyCart());
+    createOrder(order);
+    // dispatch(emptyCart());
 
-    navigate('/order/success');
-    console.log(order);
+    // navigate('/order/success');
   };
 
   useEffect(() => {
-    if (error) {
-      dispatch(clearErrors());
-      enqueueSnackbar(error, { variant: 'error' });
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
     }
-  }, [dispatch, error, enqueueSnackbar]);
+    if (isSuccess) {
+      enqueueSnackbar('Order created successfully', { variant: 'success' });
+      navigate('/order/success');
+    }
+  }, [enqueueSnackbar, error, isError, isSuccess, navigate]);
 
   return (
-    <>
+    <Layout>
       <MetaData title='Holy Tradres: Secure Payment' />
 
       <main className='w-full mt-20'>
@@ -81,7 +86,7 @@ const Payment = () => {
                     ref={paymentBtn}
                     type='submit'
                     value={`Pay daily ৳${totalPrice.toLocaleString()}`}
-                    className='bg-primary-orange w-full sm:w-1/3 my-2 py-3.5 text-sm font-medium text-white shadow hover:shadow-lg rounded-sm uppercase outline-none cursor-pointer'
+                    className='bg-orange-500 w-full sm:w-1/3 my-2 py-3.5 text-sm font-medium text-white shadow hover:shadow-lg rounded-sm uppercase outline-none cursor-pointer'
                   />
                 </form>
                 {/* stripe form */}
@@ -92,7 +97,7 @@ const Payment = () => {
           <PriceSidebar cartItems={cartItems} />
         </div>
       </main>
-    </>
+    </Layout>
   );
 };
 

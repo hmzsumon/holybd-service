@@ -7,7 +7,9 @@ import { Country, State } from 'country-state-city';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { saveShippingInfo } from '../../actions/cartAction';
+import { saveShippingInfo } from '../../features/cart/cartSlice';
+import Layout from '../Global/Layout';
+
 import MetaData from '../Layouts/MetaData';
 import PriceSidebar from './PriceSidebar';
 import Stepper from './Stepper';
@@ -17,7 +19,7 @@ const Shipping = () => {
   const navigate = useNavigate();
   // const { enqueueSnackbar } = useSnackbar();
 
-  const { cartItems } = useSelector((state) => state.serviceCart);
+  const { cartItems } = useSelector((state) => state.cart);
   const { shippingInfo } = useSelector((state) => state.cart);
 
   const [address, setAddress] = useState(shippingInfo.address);
@@ -35,7 +37,7 @@ const Shipping = () => {
   };
 
   return (
-    <>
+    <Layout>
       <MetaData title='Holy Tradres: Shipping Details' />
       <main className='w-full mt-20'>
         {/* <!-- row --> */}
@@ -139,9 +141,9 @@ const Shipping = () => {
 
                   <button
                     type='submit'
-                    className='bg-primary-orange w-full sm:w-1/3 my-2 py-3.5 text-sm font-medium text-white shadow hover:shadow-lg rounded-sm uppercase outline-none'
+                    className='bg-orange-500 w-full sm:w-1/3 my-2 py-3.5 text-sm font-medium text-white shadow hover:shadow-lg rounded-sm uppercase outline-none'
                   >
-                    save and deliver here
+                    save
                   </button>
                 </form>
               </div>
@@ -151,7 +153,7 @@ const Shipping = () => {
           <PriceSidebar cartItems={cartItems} />
         </div>
       </main>
-    </>
+    </Layout>
   );
 };
 

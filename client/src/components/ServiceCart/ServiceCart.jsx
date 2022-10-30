@@ -3,20 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import CartItem from '../Cart/CartItem';
 import EmptyCart from '../Cart/EmptyCart';
 import PriceSidebar from '../Cart/PriceSidebar';
-import SaveForLaterItem from '../Cart/SaveForLaterItem';
+import Layout from '../Global/Layout';
 import MetaData from '../Layouts/MetaData';
 
 const ServiceCart = () => {
   const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.serviceCart);
-  const { saveForLaterItems } = useSelector((state) => state.saveForLater);
+  const { cartItems } = useSelector((state) => state.cart);
 
   const placeOrderHandler = () => {
-    navigate('/login?redirect=shipping');
+    navigate('/shipping');
   };
 
   return (
-    <>
+    <Layout>
       <MetaData title='Shopping Cart | Holy Tradres' />
       <main className='w-full mt-20'>
         {/* <!-- row --> */}
@@ -42,7 +41,7 @@ const ServiceCart = () => {
                   className={`${
                     cartItems.length < 1
                       ? 'bg-primary-grey cursor-not-allowed'
-                      : 'bg-primary-orange'
+                      : 'bg-orange-500'
                   } w-full sm:w-1/3 mx-2 sm:mx-6 my-4 py-3 font-medium text-white shadow hover:shadow-lg rounded-sm`}
                 >
                   PLACE ORDER
@@ -53,13 +52,13 @@ const ServiceCart = () => {
             {/* <!-- cart items container --> */}
 
             {/* <!-- saved for later items container --> */}
-            <div className='flex flex-col mt-5 shadow bg-white'>
+            {/* <div className='flex flex-col mt-5 shadow bg-white'>
               <span className='font-medium text-lg px-2 sm:px-8 py-4 border-b'>
                 Saved For Later ({saveForLaterItems.length})
               </span>
               {saveForLaterItems &&
                 saveForLaterItems.map((item) => <SaveForLaterItem {...item} />)}
-            </div>
+            </div> */}
             {/* <!-- saved for later container --> */}
           </div>
           {/* <!-- cart column --> */}
@@ -68,7 +67,7 @@ const ServiceCart = () => {
         </div>
         {/* <!-- row --> */}
       </main>
-    </>
+    </Layout>
   );
 };
 

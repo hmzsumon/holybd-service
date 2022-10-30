@@ -14,7 +14,7 @@ export const serviceApi = apiSlice.injectEndpoints({
           console.log(error);
         }
       },
-      usesTags: ['Service'],
+      providesTags: ['Services'],
     }),
 
     // add service
@@ -24,7 +24,7 @@ export const serviceApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Service'],
+      invalidatesTags: ['Services'],
     }),
 
     // delete service
@@ -33,7 +33,7 @@ export const serviceApi = apiSlice.injectEndpoints({
         url: `/admin/services/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Service'],
+      invalidatesTags: ['Services'],
     }),
   }),
 });

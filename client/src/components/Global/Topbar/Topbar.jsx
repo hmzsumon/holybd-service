@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
+import { BsFillCartFill } from 'react-icons/bs';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import Help from './Help';
 import Notifications from './Notifications';
 import SearchModal from './SearchModal';
 import UserMenu from './UserMenu';
 
 function Topbar({ sidebarOpen, setSidebarOpen }) {
+  const { cartItems } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   return (
@@ -69,6 +74,22 @@ function Topbar({ sidebarOpen, setSidebarOpen }) {
             />
             <Notifications />
             <Help />
+            {user && user.role !== 'admin' && (
+              <Link
+                to='/service/cart'
+                className='flex items-center text-white font-medium  relative'
+              >
+                <span>
+                  <BsFillCartFill className='fill-current text-slate-500' />
+                </span>
+                {cartItems.length > 0 && (
+                  <div className='w-5 h-5 p-2 bg-red-500 text-xs rounded-full absolute -top-2 left-3 flex justify-center items-center border'>
+                    {cartItems.length}
+                  </div>
+                )}
+                Cart
+              </Link>
+            )}
             {/*  Divider */}
             <hr className='w-px h-6 bg-slate-200 mx-3' />
             <UserMenu />

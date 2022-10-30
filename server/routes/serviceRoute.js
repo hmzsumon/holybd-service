@@ -38,7 +38,7 @@ router
 // new service order
 router
   .route('/new/service/order')
-  .post(isAuthenticatedUser, authorizeRoles('user'), newServiceOrder);
+  .post(isAuthenticatedUser, authorizeRoles('seller'), newServiceOrder);
 
 // get single service order item
 router.route('/service/order-item/:id').get(getSingleServiceOrderItem);

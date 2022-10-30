@@ -2,11 +2,12 @@ import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { saveForLater } from '../../actions/saveForLaterAction';
 import {
-  addServiceToCart,
-  removeItemsFromCart,
-} from '../../actions/serviceCartAction';
+  decrementQty,
+  incrementQty,
+  removeFromCart,
+} from '../../features/cart/cartSlice';
+
 import { getDeliveryDate } from '../../utils/functions';
 
 const CartItem = ({
@@ -22,25 +23,22 @@ const CartItem = ({
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const increaseQuantity = (id, quantity) => {
-    const newQty = quantity + 1;
-    dispatch(addServiceToCart(id, newQty));
+  const increaseQuantity = (id) => {
+    dispatch(incrementQty(id));
   };
 
   const decreaseQuantity = (id, quantity) => {
-    const newQty = quantity - 1;
     if (quantity <= 1) return;
-    dispatch(addServiceToCart(id, newQty));
+    dispatch(decrementQty(id));
   };
 
   const removeCartItem = (id) => {
-    dispatch(removeItemsFromCart(id));
+    dispatch(removeFromCart(id));
     enqueueSnackbar('Product Removed From Cart', { variant: 'success' });
   };
 
   const saveForLaterHandler = (id) => {
-    dispatch(saveForLater(id));
-    removeCartItem(id);
+    dispatch(removeFromCart(id));
     enqueueSnackbar('Saved For Later', { variant: 'success' });
   };
 
@@ -69,11 +67,9 @@ const CartItem = ({
           {/* <!-- product title --> */}
           <div className='flex flex-col sm:flex-row justify-between items-start pr-5 gap-1 sm:gap-0'>
             <div className='flex flex-col gap-0.5 sm:w-3/5'>
-              <p className='group-hover:text-primary-blue'>
-                {name.length > 42 ? `${name.substring(0, 42)}...` : name}{' '}
-              </p>
+              <p className='group-hover:text-primary-blue'>{name}</p>
               <span>
-                1{unit} {price.toLocaleString()}৳
+                1{unit} {price?.toLocaleString()}৳
               </span>
               <span className='text-sm text-gray-500'>{desc}</span>
             </div>

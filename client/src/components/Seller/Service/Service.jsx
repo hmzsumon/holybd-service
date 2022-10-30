@@ -1,19 +1,32 @@
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useSnackbar } from 'notistack';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useAddToCartMutation } from '../../../features/cart/cartApi';
+import { addToCart } from '../../../features/cart/cartSlice';
 
 const Service = ({ service }) => {
   const navigate = useNavigate();
-  const [addToCart] = useAddToCartMutation();
+  const dispatch = useDispatch();
+
   const { enqueueSnackbar } = useSnackbar();
   const { name, icon_url, description, unit, unitprice } = service;
   const { cartItems } = useSelector((state) => state.cart);
-
+  let quantity = 1;
   const addToCartHandler = () => {
-    addToCart(service.id);
+    dispatch(
+      addToCart({
+        service: service.id,
+        name: service.name,
+        price: service.unitprice,
+        image: service.icon_url,
+        desc: service.description,
+        unit: service.unit,
+        icon_url: service.icon_url,
+        total: service.unitprice * quantity,
+        quantity,
+      })
+    );
     enqueueSnackbar('Service Added To Cart', { variant: 'success' });
   };
   const itemInCart = cartItems.some((item) => item.service === service.id);
@@ -22,7 +35,7 @@ const Service = ({ service }) => {
     navigate('/service/cart');
   };
   return (
-    <div className='bg-gray-200 py-10 px-6 space-y-4'>
+    <div className='bg-white rounded-md shadow-lg py-10 px-6 space-y-4'>
       <div className='w-44 h-48 mx-auto'>
         <img
           draggable='false'

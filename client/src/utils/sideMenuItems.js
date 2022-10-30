@@ -1,4 +1,4 @@
-import { FaUsers } from 'react-icons/fa';
+import { FaShoppingBag, FaUsers } from 'react-icons/fa';
 import { MdMedicalServices, MdOutlineDashboard } from 'react-icons/md';
 
 import { BiUserPlus } from 'react-icons/bi';
@@ -40,6 +40,20 @@ const sideMenuItems = [
     name: 'Services',
     icon: <MdMedicalServices />,
     path: '/admin/services',
+    access: 'admin',
+  },
+  {
+    id: 5,
+    name: 'My Orders',
+    icon: <FaShoppingBag />,
+    path: '/my/orders',
+    access: 'seller',
+  },
+  {
+    id: 6,
+    name: 'All Orders',
+    icon: <FaShoppingBag />,
+    path: '/all/orders',
     access: 'admin',
   },
 

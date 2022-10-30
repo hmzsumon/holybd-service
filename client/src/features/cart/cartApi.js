@@ -1,5 +1,10 @@
 import { apiSlice } from '../api/apiSlice';
-import { addToCart } from './cartSlice';
+
+export function fetchCount(amount = 1) {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve({ data: amount }), 500)
+  );
+}
 
 export const cartApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,23 +12,7 @@ export const cartApi = apiSlice.injectEndpoints({
     getCart: builder.query({
       query: () => '/cart',
     }),
-
-    // add to cart
-    addToCart: builder.mutation({
-      query: ({ id, qty }) => ({
-        url: `/services/${id}`,
-        method: 'GET',
-      }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const result = await queryFulfilled;
-          dispatch(addToCart(result.data));
-        } catch (error) {
-          console.log(error);
-        }
-      },
-    }),
   }),
 });
 
-export const { useGetCartQuery, useAddToCartMutation } = cartApi;
+export const { useGetCartQuery } = cartApi;
