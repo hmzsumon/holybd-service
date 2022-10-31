@@ -24,11 +24,13 @@ const user = require('./routes/userRoute');
 const seller = require('./routes/sellerRoute');
 const order = require('./routes/orderRoute');
 const service = require('./routes/serviceRoute');
+const bill = require('./routes/billRoute');
 
 app.use('/api/v1', user);
 app.use('/api/v1', seller);
 app.use('/api/v1', order);
 app.use('/api/v1', service);
+app.use('/api/v1', bill);
 
 // deployment
 __dirname = path.resolve();

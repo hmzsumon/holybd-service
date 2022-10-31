@@ -3,6 +3,8 @@ import { MdMedicalServices, MdOutlineDashboard } from 'react-icons/md';
 
 import { BiUserPlus } from 'react-icons/bi';
 
+import { CiMoneyBill } from 'react-icons/ci';
+
 const sideMenuItems = [
   {
     id: 1,
@@ -54,6 +56,20 @@ const sideMenuItems = [
     name: 'All Orders',
     icon: <FaShoppingBag />,
     path: '/all/orders',
+    access: 'admin',
+  },
+  {
+    id: 7,
+    name: 'My Bills',
+    icon: <CiMoneyBill />,
+    path: '/my/bills',
+    access: 'seller',
+  },
+  {
+    id: 8,
+    name: 'All Bills',
+    icon: <CiMoneyBill />,
+    path: '/admin/bills',
     access: 'admin',
   },
 

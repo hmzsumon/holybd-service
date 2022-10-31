@@ -1,17 +1,24 @@
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { clearErrors, updateOrderItem } from '../../actions/orderAction';
-import { getServiceItem } from '../../actions/serviceAction';
-import { UPDATE_ORDER_ITEM_RESET } from '../../constants/orderConstants';
+
+import { useUpdateOrderItemMutation } from '../../features/order/orderApi';
+import { useGetServiceOrderItemQuery } from '../../features/service/serviceApi';
+import Layout from '../Global/Layout';
 import Loading from './Loading';
 
 const EditOrderItem = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const { service: item, loading } = useSelector((state) => state.serviceItem);
+  const { data, isLoading: loading } = useGetServiceOrderItemQuery(params.id);
+  const { service_item: item } = data || {};
+
+  const [
+    updateOrderItem,
+    { isError, isLoading: updateLoading, isSuccess, error },
+  ] = useUpdateOrderItemMutation();
+
   const {
     icon_url,
     quantity: initQuantity,
@@ -24,13 +31,7 @@ const EditOrderItem = () => {
     order_discount: initOrderDiscount,
   } = item ? item : {};
 
-  const {
-    loading: updateLoading,
-    isUpdated,
-    error: updateError,
-  } = useSelector((state) => state.updateOrderItem);
   const { enqueueSnackbar } = useSnackbar();
-  const dispatch = useDispatch();
 
   const [discount, setDiscount] = useState(initDiscount);
   const [quantity, setQuantity] = useState(initQuantity);
@@ -75,25 +76,42 @@ const EditOrderItem = () => {
     myForm.set('order_total', orderTotal);
     myForm.set('order_discount', orderDiscount);
 
-    dispatch(updateOrderItem(params.id, myForm));
+    updateOrderItem({ id: params.id, data: myForm });
   };
 
   useEffect(() => {
-    if (updateError) {
-      enqueueSnackbar(updateError, { variant: 'error' });
-      dispatch(clearErrors());
+    if (params.id === item?.id) {
+      setDiscount(initDiscount);
+      setQuantity(initQuantity);
+      setTotal(initTotal);
+      setOrderTotal(initOrderTotal);
+      setOrderDiscount(initOrderDiscount);
     }
-    if (isUpdated) {
-      enqueueSnackbar('Order Updates Successfully', { variant: 'success' });
-      dispatch({ type: UPDATE_ORDER_ITEM_RESET });
-      navigate(-1);
+  }, [
+    params.id,
+    item?.id,
+    initDiscount,
+    initQuantity,
+    initTotal,
+    initOrderTotal,
+    initOrderDiscount,
+  ]);
+
+  useEffect(() => {
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
     }
-    dispatch(getServiceItem(params.id));
-  }, [dispatch, updateError, isUpdated, enqueueSnackbar, params.id, navigate]);
+    if (isSuccess) {
+      enqueueSnackbar('Order item updated successfully', {
+        variant: 'success',
+      });
+      navigate(`/admin/order/${params.id}`);
+    }
+  }, [isSuccess, enqueueSnackbar, navigate, params.id, isError, error]);
 
   return (
-    <div>
-      {loading ? (
+    <Layout>
+      {loading && !item ? (
         <Loading />
       ) : (
         <div className='flex p-4 items-start bg-white border rounded gap-2 sm:gap-0 hover:shadow-lg'>
@@ -173,7 +191,7 @@ const EditOrderItem = () => {
           {/* <!-- order desc container --> */}
         </div>
       )}
-    </div>
+    </Layout>
   );
 };
 

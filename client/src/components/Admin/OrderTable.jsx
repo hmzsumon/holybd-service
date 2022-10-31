@@ -1,7 +1,6 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import {
   useDeleteOrderMutation,
   useGetAdminOrdersQuery,
@@ -20,7 +19,7 @@ const OrderTable = () => {
 
   const [deleteOrder, { isLoading: deleteLoading, isSuccess, isError, error }] =
     useDeleteOrderMutation();
-  const dispatch = useDispatch();
+
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {

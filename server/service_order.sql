@@ -8,6 +8,7 @@ CREATE TABLE service_orders (
     total INT NOT NULL,
     address VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
+    state VARCHAR(255) NOT NULL,
     order_status VARCHAR(255) DEFAULT 'processing',
     zip VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
@@ -37,8 +38,8 @@ CREATE TABLE service_order_items (
     icon_url VARCHAR(255) NOT NULL,
     discount INT DEFAULT 0,
     total INT NOT NULL,
-    order_total INT NOT NULL,
-    odder_discount INT DEFAULT 0,
+    order_total INT DEFAULT 0,
+    order_discount INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (service_order_id) REFERENCES service_orders(id),
@@ -49,6 +50,12 @@ CREATE TABLE service_order_items (
 
 -- delete multiple service_order
 DELETE FROM service_orders WHERE id IN (1,2,3);
+
+-- odder_discount to order_discount
+ALTER TABLE service_order_items RENAME COLUMN odder_discount TO order_discount;
+
+--delete table service_order_items
+DROP TABLE service_order_items;
 
 
 
@@ -66,7 +73,7 @@ const { rows: orders } = await db.query(
 
 -- delete service_order by id
 DELETE FROM service_orders WHERE id = 1;
-
+ 
 -- delete multiple service_order_item 
 DELETE FROM service_order_items WHERE id IN (1,2,3);
 
@@ -94,12 +101,16 @@ CREATE TABLE service_order_bills (
     bill_start_at TIMESTAMP DEFAULT NULL,
     bill_end_at TIMESTAMP DEFAULT NULL,
     bill_status VARCHAR(255) DEFAULT 'pending',
+    bill_dayes INT DEFAULT 1,
     FOREIGN KEY (service_order_id) REFERENCES service_orders(id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 -- insert data into service_order_bill table
 INSERT INTO service_order_bills (user_id, username, service_order_id, item_quantity, discount, total, daily_bill, net_total, reaming_amount) VALUES (1, 'username', 1, 1, 0, 100, 10, 90, 90);
+
+-- delete multiple service_order_bill
+DELETE FROM service_order_bills WHERE id IN (1,2,3);
 
 -- cgrate table payment
 CREATE TABLE payments (

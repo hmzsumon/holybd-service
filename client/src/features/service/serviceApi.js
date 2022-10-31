@@ -35,6 +35,14 @@ export const serviceApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Services'],
     }),
+
+    // get service orders item
+    getServiceOrderItem: builder.query({
+      query: (id) => ({
+        url: `/service/order-item/${id}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -42,4 +50,5 @@ export const {
   useGetServicesQuery,
   useAddServiceMutation,
   useDeleteServiceMutation,
+  useGetServiceOrderItemQuery,
 } = serviceApi;

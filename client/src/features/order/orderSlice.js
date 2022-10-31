@@ -11,6 +11,7 @@ const initialState = {
 const orderSlice = createSlice({
   name: 'order',
   initialState,
+  tagsTypes: ['Order', 'Orders'],
   reducers: {
     getOrder: (state, action) => {
       state.order = action.payload;

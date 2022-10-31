@@ -153,9 +153,9 @@ exports.updateOrder = asyncErrorHandler(async (req, res, next) => {
 
   // console.log(order[0].order_status);
 
-  // if (order[0].order_status === 'Delivered') {
-  //   return next(new ErrorHandler('Already Delivered', 400));
-  // }
+  if (order[0].order_status === 'Delivered') {
+    return next(new ErrorHandler('Already Delivered', 400));
+  }
 
   // if status = shipped, update update order_status to shipped and shipped_at to now
   if (status === 'Shipped') {

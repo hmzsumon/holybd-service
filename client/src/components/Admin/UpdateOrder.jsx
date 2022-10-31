@@ -2,57 +2,54 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+
 import {
-  clearErrors,
-  getOrderDetails,
-  updateOrder,
-} from '../../actions/orderAction';
-import { UPDATE_ORDER_RESET } from '../../constants/orderConstants';
+  useGetOrderDetailsQuery,
+  useUpdateOrderMutation,
+} from '../../features/order/orderApi';
 import { formatDate } from '../../utils/functions';
+import Layout from '../Global/Layout';
 import MetaData from '../Layouts/MetaData';
 import TrackStepper from '../Order/TrackStepper';
 import Loading from './Loading';
 import UpdateOrderItems from './UpdateOrderItems';
 
 const UpdateOrder = () => {
-  const { order, error, loading, orderItems } = useSelector(
-    (state) => state.orderDetails
-  );
-  const dispatch = useDispatch();
-  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
+  const { data, isLoading: loading } = useGetOrderDetailsQuery(params.id);
+  const { order, orderItems } = data || {};
+  const [updateOrder, { isLoading, isError, isSuccess, error }] =
+    useUpdateOrderMutation();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const [status, setStatus] = useState('');
 
-  const { isUpdated, error: updateError } = useSelector((state) => state.order);
-
   useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, { variant: 'error' });
-      dispatch(clearErrors());
+    if (order) {
+      setStatus(order.orderStatus);
     }
-    if (updateError) {
-      enqueueSnackbar(updateError, { variant: 'error' });
-      dispatch(clearErrors());
-    }
-    if (isUpdated) {
-      enqueueSnackbar('Order Updates Successfully', { variant: 'success' });
-      dispatch({ type: UPDATE_ORDER_RESET });
-    }
-    dispatch(getOrderDetails(params.id));
-  }, [dispatch, error, params.id, isUpdated, updateError, enqueueSnackbar]);
+  }, [order]);
 
   const updateOrderSubmitHandler = (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.set('status', status);
-    dispatch(updateOrder(params.id, formData));
+    updateOrder({ id: params.id, data: formData });
   };
 
+  useEffect(() => {
+    if (isError) {
+      enqueueSnackbar(error.data.message, { variant: 'error' });
+    }
+    if (isSuccess) {
+      enqueueSnackbar('Order updated successfully', { variant: 'success' });
+    }
+  }, [isSuccess, isError, error, enqueueSnackbar]);
+
   return (
-    <>
+    <Layout>
       <MetaData title='Admin: Update Order | Holy Tradres' />
 
       {loading ? (
@@ -74,7 +71,7 @@ const UpdateOrder = () => {
                   <div className='flex flex-col gap-3 my-8 mx-10'>
                     <h3 className='font-medium text-lg'>Delivery Address</h3>
                     <h4 className='font-medium'>{order.username}</h4>
-                    <p className='text-sm'>{`${order.address}, ${order.city}, ${order.order_status} - ${order.zip}`}</p>
+                    <p className='text-sm'>{`${order.address}, ${order.city}, ${order.state} - ${order.zip}`}</p>
                     {/* <div className='flex gap-2 text-sm'>
                       <p className='font-medium'>Email</p>
                       <p>{order.user.email}</p>
@@ -169,7 +166,7 @@ const UpdateOrder = () => {
           )}
         </>
       )}
-    </>
+    </Layout>
   );
 };
 
